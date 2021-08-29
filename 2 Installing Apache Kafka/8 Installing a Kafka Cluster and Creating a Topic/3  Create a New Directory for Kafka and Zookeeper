@@ -1,0 +1,9 @@
+# Use the following command to create a new directory for Kafka message logs:
+sudo mkdir -p /data/kafka
+
+# Use the following command to create a snapshot directory for Zookeeper:
+sudo mkdir -p /data/zookeeper
+
+# Change ownership of those directories to allow the user cloud_user control:
+sudo chown -R cloud_user:cloud_user /data/kafka
+sudo chown -R cloud_user:cloud_user /data/zookeeper

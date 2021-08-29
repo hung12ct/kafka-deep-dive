@@ -1,0 +1,8 @@
+# Use the following command to create a file in /data/zookeeper (on server #1) called myid with the contents "1" to specify Zookeeper server #1:
+echo "1" > /data/zookeeper/myid
+
+# Use the following command to create a file in /data/zookeeper (on server #2) called myid with the contents "2" to specify Zookeeper server #2:
+echo "2" > /data/zookeeper/myid
+
+# Use the following command to create a file in /data/zookeeper (on server #3) called myid with the contents "3" to specify Zookeeper server #3:
+echo "3" > /data/zookeeper/myid

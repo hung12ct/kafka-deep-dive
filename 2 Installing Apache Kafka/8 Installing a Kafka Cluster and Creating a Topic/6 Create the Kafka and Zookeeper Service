@@ -1,0 +1,115 @@
+## Create the file /etc/init.d/zookeeper on each server and paste in the following contents:
+
+sudo vim /etc/init.d/zookeeper
+
+    #!/bin/bash
+    #/etc/init.d/zookeeper
+    DAEMON_PATH=/opt/kafka/bin
+    DAEMON_NAME=zookeeper
+    # Check that networking is up.
+    #[ ${NETWORKING} = "no" ] && exit 0
+
+    PATH=$PATH:$DAEMON_PATH
+
+    case "$1" in
+    start)
+            # Start daemon.
+            pid=`ps ax | grep -i 'org.apache.zookeeper' | grep -v grep | awk '{print $1}'`
+            if [ -n "$pid" ]
+            then
+                echo "Zookeeper is already running";
+            else
+            echo "Starting $DAEMON_NAME";
+            $DAEMON_PATH/zookeeper-server-start.sh -daemon /opt/kafka/config/zookeeper.properties
+            fi
+            ;;
+    stop)
+            echo "Shutting down $DAEMON_NAME";
+            $DAEMON_PATH/zookeeper-server-stop.sh
+            ;;
+    restart)
+            $0 stop
+            sleep 2
+            $0 start
+            ;;
+    status)
+            pid=`ps ax | grep -i 'org.apache.zookeeper' | grep -v grep | awk '{print $1}'`
+            if [ -n "$pid" ]
+            then
+            echo "Zookeeper is Running as PID: $pid"
+            else
+            echo "Zookeeper is not Running"
+            fi
+            ;;
+    *)
+            echo "Usage: $0 {start|stop|restart|status}"
+            exit 1
+    esac
+
+    exit 0
+
+## Change the file to executable, change ownership, install, and start the service:
+sudo chmod +x /etc/init.d/zookeeper
+sudo chown root:root /etc/init.d/zookeeper
+sudo update-rc.d zookeeper defaults
+sudo service zookeeper start
+sudo service zookeeper status
+
+## Create the file /etc/init.d/kafka on each server and paste in the following contents:
+
+    #!/bin/bash
+    #/etc/init.d/kafka
+    DAEMON_PATH=/opt/kafka/bin
+    DAEMON_NAME=kafka
+    # Check that networking is up.
+    #[ ${NETWORKING} = "no" ] && exit 0
+
+    PATH=$PATH:$DAEMON_PATH
+
+    # See how we were called.
+    case "$1" in
+    start)
+            # Start daemon.
+            pid=`ps ax | grep -i 'kafka.Kafka' | grep -v grep | awk '{print $1}'`
+            if [ -n "$pid" ]
+            then
+                echo "Kafka is already running"
+            else
+            echo "Starting $DAEMON_NAME"
+            $DAEMON_PATH/kafka-server-start.sh -daemon /opt/kafka/config/server.properties
+            fi
+            ;;
+    stop)
+            echo "Shutting down $DAEMON_NAME"
+            $DAEMON_PATH/kafka-server-stop.sh
+            ;;
+    restart)
+            $0 stop
+            sleep 2
+            $0 start
+            ;;
+    status)
+            pid=`ps ax | grep -i 'kafka.Kafka' | grep -v grep | awk '{print $1}'`
+            if [ -n "$pid" ]
+            then
+            echo "Kafka is Running as PID: $pid"
+            else
+            echo "Kafka is not Running"
+            fi
+            ;;
+    *)
+            echo "Usage: $0 {start|stop|restart|status}"
+            exit 1
+    esac
+
+    exit 0
+
+Save and close the file.
+
+## Change the file to executable, change ownership, install, and start the service:
+
+sudo chmod +x /etc/init.d/kafka
+sudo chown root:root /etc/init.d/kafka
+sudo update-rc.d kafka defaults
+sudo service kafka start
+sudo service kafka status

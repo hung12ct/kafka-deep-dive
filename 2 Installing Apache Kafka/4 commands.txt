@@ -1,0 +1,14 @@
+# create a topic
+./bin/kafka-topics.sh --zookeeper localhost:2181 --create --topic test1 --partitions 3 --replication-factor 3
+
+# Same way to create a topic
+./bin/kafka-topics.sh --zookeeper localhost:2181,localhost:2182,localhost:2183 --create --topic test2 --partitions 3 --replication-factor 3
+
+# List all the topics
+./bin/kafka-topics.sh --zookeeper localhost:2181 --list
+
+# See the specific information of a topic
+./bin/kafka-topics.sh --zookeeper localhost:2181 --topic test2 --describe
+
+# Delete a topic
+./bin/kafka-topics.sh --zookeeper localhost:2181 --topic test2 --delete

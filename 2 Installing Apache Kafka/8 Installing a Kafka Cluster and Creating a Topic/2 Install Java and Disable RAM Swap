@@ -1,0 +1,11 @@
+# Use the following command to install the latest Java Developer Kit (JDK):
+sudo apt install -y default-jdk
+
+# Use the following command to verify that Java has been installed:
+java -version
+
+# Use the following command to disable RAM swap:
+swapoff -a
+
+# Use the following command to comment out swap in the /etc/fstab file:
+sudo sed -i '/ swap / s/^/#/' /etc/fstab

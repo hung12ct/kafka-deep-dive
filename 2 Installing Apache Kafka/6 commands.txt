@@ -1,0 +1,5 @@
+# consume messages
+./bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test5
+
+# retrie messages from beginning
+./bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test5 --from-beginning

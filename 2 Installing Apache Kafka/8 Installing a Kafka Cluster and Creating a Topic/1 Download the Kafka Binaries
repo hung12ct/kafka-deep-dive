@@ -1,0 +1,10 @@
+# Use wget to download the tar file from the mirror:
+wget http://mirror.cogentco.com/pub/apache/kafka/2.6.2/kafka_2.12-2.6.2.tgz
+
+#Extract the tar file and move it into the /opt directory:
+tar -xvf kafka_2.12-2.6.2.tgz
+sudo mv kafka_2.12-2.6.2 /opt/kafka
+
+#Change to the kafka directory and list the contents:
+cd /opt/kafka
+ls

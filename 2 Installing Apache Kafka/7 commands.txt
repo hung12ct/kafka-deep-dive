@@ -1,0 +1,8 @@
+# specìfy consumer will be a part of consumber group
+./bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test5 --group application1
+
+# List all the groups
+./bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092 --list
+
+# describe specific group
+./bin/kafka-consumer-groups.sh --bootstrap-server localhost:9092 --describe --group application1

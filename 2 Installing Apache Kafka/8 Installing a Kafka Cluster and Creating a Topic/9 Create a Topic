@@ -1,0 +1,5 @@
+# Use the following command to create a topic named test:
+./bin/kafka-topics.sh --zookeeper zookeeper1:2181/kafka --create --topic test --replication-factor 1 --partitions 3
+
+# Use the following command to describe the topic:
+./bin/kafka-topics.sh --zookeeper zookeeper1:2181/kafka --topic test --describe

@@ -1,0 +1,11 @@
+# To publish messages to Kafka
+./bin/kafka-console-producer.sh --broker-list localhost:9092 --topic test
+
+# to have more control can change the properties
+./bin/kafka-console-producer.sh --broker-list localhost:9092 --topic test --producer-property acks=all
+
+# create a new topic with producer
+./bin/kafka-console-producer.sh --broker-list localhost:9092 --topic
+
+# change the config file: example num.partitions=7
+vim config/server.properties
