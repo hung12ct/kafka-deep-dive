@@ -1,0 +1,144 @@
+CHAPTER 3.5
+Installing Kafka and Zookeeper Using Binaries: Part 2
+
+
+
+In this lesson, we'll focus on installing Kafka as a service. Then, we'll modify the configuration files and start the Zookeeper and Kafka services back up. Finally, we'll create and list our first topic. Make sure to pay close attention as I shift between the three servers and notice the small differences between commands and configurations.
+
+Create the Kafka Service File
+
+sudo vim /etc/init.d/kafka
+Insert the Following Contents into the kafka File
+#!/bin/bash
+#/etc/init.d/kafka
+DAEMON_PATH=/home/cloud_user/kafka/bin
+DAEMON_NAME=kafka
+# Check that networking is up.
+#[ ${NETWORKING} = "no" ] && exit 0
+
+PATH=$PATH:$DAEMON_PATH
+
+# See how we were called.
+case "$1" in
+  start)
+        # Start daemon.
+        pid=`ps ax | grep -i 'kafka.Kafka' | grep -v grep | awk '{print $1}'`
+        if [ -n "$pid" ]
+          then
+            echo "Kafka is already running"
+        else
+          echo "Starting $DAEMON_NAME"
+          $DAEMON_PATH/kafka-server-start.sh -daemon /home/cloud_user/kafka/config/server.properties
+        fi
+        ;;
+  stop)
+        echo "Shutting down $DAEMON_NAME"
+        $DAEMON_PATH/kafka-server-stop.sh
+        ;;
+  restart)
+        $0 stop
+        sleep 2
+        $0 start
+        ;;
+  status)
+        pid=`ps ax | grep -i 'kafka.Kafka' | grep -v grep | awk '{print $1}'`
+        if [ -n "$pid" ]
+          then
+          echo "Kafka is Running as PID: $pid"
+        else
+          echo "Kafka is not Running"
+        fi
+        ;;
+  *)
+        echo "Usage: $0 {start|stop|restart|status}"
+        exit 1
+esac
+
+exit 0
+Change the Properties of the File and Start the Service
+sudo chmod +x /etc/init.d/kafka
+
+sudo chown root:root /etc/init.d/kafka
+
+sudo update-rc.d kafka defaults
+
+sudo service kafka start
+Stop the kafka and zookeeper Services on Each Server
+sudo service zookeeper stop
+
+sudo service kafka stop
+Create the logs Directory for the Kafka Service
+sudo mkdir -p /data/kafka
+
+sudo chown -R cloud_user:cloud_user /data/kafka
+Create the server.properties File
+rm config/server.properties
+
+vim config/server.properties
+Add the Following Contents to the server.properties File
+# change this for each broker
+broker.id=[broker_number]
+# change this to the hostname of each broker
+advertised.listeners=PLAINTEXT://[hostname]:9092
+# The ability to delete topics
+delete.topic.enable=true
+# Where logs are stored
+log.dirs=/data/kafka
+# default number of partitions
+num.partitions=8
+# default replica count based on the number of brokers
+default.replication.factor=3
+# to protect yourself against broker failure
+min.insync.replicas=2
+# logs will be deleted after how many hours
+log.retention.hours=168
+# size of the log files
+log.segment.bytes=1073741824
+# check to see if any data needs to be deleted
+log.retention.check.interval.ms=300000
+# location of all zookeeper instances and kafka directory
+zookeeper.connect=zookeeper1:2181,zookeeper2:2181,zookeeper3:2181/kafka
+# timeout for connecting with zookeeeper
+zookeeper.connection.timeout.ms=6000
+# automatically create topics
+auto.create.topics.enable=true
+Add the Following to /etc/hosts
+[server1_private_ip]  kafka1
+[server1_private_ip]  zookeeper1
+[server2_private_ip]  kafka2
+[server2_private_ip]  zookeeper2
+[server3_private_ip]  kafka3
+[server3_private_ip]  zookeeper3
+Create the logs Directory and myid File for the Zookeeper Service
+sudo mkdir -p /data/zookeeper
+sudo chown -R cloud_user:cloud_user /data/zookeeper
+echo "1" > /data/zookeeper/myid
+echo "2" > /data/zookeeper/myid
+echo "3" > /data/zookeeper/myid
+Create the zookeeper.properties File
+rm /home/cloud_user/kafka/config/zookeeper.properties
+vim /home/cloud_user/kafka/config/zookeeper.properties
+Add the Following Contents to the zookeeper.properties File
+# the directory where the snapshot is stored.
+dataDir=/data/zookeeper
+# the port at which the clients will connect
+clientPort=2181
+# setting number of connections to unlimited
+maxClientCnxns=0
+# keeps a hearbeat of zookeeper in milliseconds
+tickTime=2000
+# time for inital synchronization
+initLimit=10
+# how many ticks can pass before timeout
+syncLimit=5
+# define servers ip and internal ports to zookeeper
+server.1=zookeeper1:2888:3888
+server.2=zookeeper2:2888:3888
+server.3=zookeeper3:2888:3888
+Start the Zookeeper and Kafka Services on Each Server
+sudo service zookeeper start
+sudo service kafka start
+Create Your First Topic in Your New Kafka Cluster
+./bin/kafka-topics.sh --zookeeper zookeeper1:2181/kafka --create --topic test --replication-factor 1 --partitions 3
+
+./bin/kafka-topics.sh --zookeeper zookeeper1:2181/kafka --topic test --describe
