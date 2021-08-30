@@ -1,0 +1,72 @@
+cd /data/kafka
+ls
+cd test-0
+ls
+# 00000000000000000000.log : the actual message itself
+# leader-epoch-checkpoint: handle the leader fail value between replicate
+# 00000000000000000002.snapshot: internal kafka snapshot
+# and the other files mapping between message offset and the physical location inside the index file so making
+# sure the messages can be access quickly.
+
+# take a look on log file
+./bin/kafka-run-class.sh kafka.tools.DumpLogSegments --print-data-log --files \
+/Users/ccp/Documents/pet-projects/content-kafka-deep-dive/zk-multiple-kafka-multiple/kafka1/data/test-0/00000000000000000000.log
+
+# change segment.ms to 60000
+./bin/kafka-configs.sh --zookeeper localhost:2181 --alter --entity-type topics \
+--entity-name test --add-config segment.ms=6000
+
+# send more messages to topic
+./bin/kafka-console-producer.sh --broker-list localhost:9092 --topic test
+
+# recheck the log again we keep track that every minute have more 1 log
+
+# remove the log retention
+./bin/kafka-configs.sh --zookeeper localhost:2181 --alter --entity-type topics \
+--entity-name test --delete-config segment.ms
+
+# create a json file include the topic we want to modify partition
+vim topic.json
+    {"topics":
+    [{"topic": "test"}],
+    "version": 1
+    }
+
+# re-assign replicate (for review)
+./bin/kafka-reassign-partitions.sh --zookeeper localhost:2181 --generate \
+--topic-to-move-json-file topic.json -broker-list 3,2,1
+
+# but we haven't change it yet, so we need to create a json file
+vim plan.json
+    {"version":1,"partitions":[{"topic":"test","partition":0,"replicas":[3],
+    "log_dirs":["any"]},{"topic":"test","partition":1,"replicas":[1],
+    "log_dirs":["any"]},{"topic":"test","partition":2,"replicas":[2],"log_dirs":["any"]}]}
+# actually execute the changes on our cluster
+./bin/kafka-reassign-partitions.sh --zookeeper localhost:2181 \
+--execute --reassignment-json-file plan.json
+
+# verify
+./bin/kafka-reassign-partitions.sh --zookeeper localhost:2181 \
+--verify --reassignment-json-file plan.json
+
+# create a json file to specify the partition to use
+vim replicacount.json
+    {"partitions":
+    [{"topic": "test", "partition": 0,
+    "replicas": [
+    2,
+    1
+    ]
+    }],
+    "version": 1
+    }
+
+# execute the change
+./bin/kafka-reassign-partitions.sh --zookeeper localhost:2181 \
+--execute --reassignment-json-file replicacount.json
+
+#
+./bin/kafka-topics.sh --zookeeper localhost:2181 --topic test --describe
+
+#
+./bin/kafka-preferred-replica-election.sh --zookeeper localhost:2181

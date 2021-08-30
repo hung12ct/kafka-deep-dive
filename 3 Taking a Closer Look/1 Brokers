@@ -1,0 +1,23 @@
+# view nodes in zookeeper shell
+./bin/zookeeper-shell.sh localhost:2181
+/ls
+get /controller
+
+# modify the configuration
+vim config/server.properties
+
+# check the log
+cd logs
+cat server.logs
+cat zookeeper.out
+cat controller.log
+cat state-change.log
+
+# performance testing in kafka
+./bin/kafka-producer-perf-test.sh --topic test1 --num-records 10000 --throughput 10 --payload-file randomdatafile.txt --producer-props acks=1 bootstrap.servers=localhost:9092,localhost:9093,localhost:9094 --payload-delimiter A
+
+# same time run consumer to consume the messages:
+./bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic test1
+
+# check the specific information of a topic after stop 1 broker (notice on Isr information)
+./bin/kafka-topics.sh --zookeeper localhost:2181 --topic test2 --describe
