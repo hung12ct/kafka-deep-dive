@@ -1,0 +1,5 @@
+#SASL/GSSAPI kerberos windows AD
+#SASL/PLAIN username/pass
+#SASL/SCRAM-SHA-256 more secure user/pass
+#SASL/OAUTHBEARER json web tokens
+keytool --keystore server.keystore.jks -alias kafka1 -validity 365 -genkey -keyalg RSA

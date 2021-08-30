@@ -1,0 +1,3 @@
+cd kafka-project/kafka-app/
+vim pom.xml
+vim alert.avsc
