@@ -1,0 +1,28 @@
+### Users can run Kafka Connect in two ways: standalone mode or distributed mode.
+
+### In standalone mode, a single process runs all the connectors. It is not fault tolerant.
+### Since it uses only a single process, it is not scalable. Generally, it is useful for users for development and testing purposes.
+
+### In distributed mode, multiple workers run Kafka Connect.
+### In this mode, Kafka Connect is scalable and fault tolerant, so it is used in production deployment.
+
+### connect-console-sink.properties vs connect-console-source.properties:
+sink : for getting the data out
+source : for getting the data in kafka cluster
+
+# content of connect-file-source.properties
+    '''
+    name=local-file-source
+    connector.class=FileStreamSource
+    tasks.max=1
+    file=test.txt
+    topic=connect-test
+    '''
+# connect standalone
+./bin/connect-standalone.sh config/connect-standalone.properties config/connect-file-source.properties
+
+# create content for test.txt file
+echo -e "message1\nmessage2" >test.txt
+
+# run a new consumer to see if we can see a message
+./bin/kafka-console-consumer.sh --bootstrap-server localhost:9092 --topic connect-test --from-beginning

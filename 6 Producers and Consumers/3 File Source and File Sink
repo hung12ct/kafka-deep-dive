@@ -1,0 +1,14 @@
+# content of connect-file-sink.properties
+    '''
+    name=local-file-sink
+    connector.class=FileStreamSink
+    tasks.max=1
+    file=test.sink.txt
+    topics=connect-test
+    '''
+
+# connect standalone
+./bin/connect-standalone.sh config/connect-standalone.properties config/connect-file-sink.properties
+
+# take a look in test.sink.txt to check that we successful in getting the message out of kafka cluster
+cat test.sink.txt

@@ -1,0 +1,148 @@
+In this lesson we walk through installing an application that serves as a producer for our Kafka Cluster. Below, you can find the commands for each step during this lesson.
+
+#### Download Maven (updated 8/24/2020)
+
+```
+curl -O https://downloads.apache.org/maven/maven-3/3.6.3/binaries/apache-maven-3.6.3-bin.tar.gz
+```
+
+#### Unzip the file, move the contents, and add Maven to your path.
+
+```
+tar xzvf apache-maven-3.6.3-bin.tar.gz
+sudo mv apache-maven-3.6.3 /opt
+export PATH=/opt/apache-maven-3.6.3/bin:$PATH
+echo $PATH
+
+#verify version
+mvn -v
+```
+
+#### Create your project folder and change into that directory.
+
+```
+mkdir kafka-project
+cd kafka-project
+```
+
+#### Create a Maven project.
+
+```
+mvn -B archetype:generate \
+  -DarchetypeGroupId=org.apache.maven.archetypes \
+  -DgroupId=com.github.chadmcrowell \
+  -DartifactId=kafka-app
+```
+
+#### Add the following to the `pom.xml` file.
+```
+  <properties>
+    <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+    <maven.compiler.source>1.7</maven.compiler.source>
+    <maven.compiler.target>1.7</maven.compiler.target>
+  </properties>
+```
+
+```
+<!-- https://mvnrepository.com/artifact/org.apache.kafka/kafka-clients -->
+<dependency>
+  <groupId>org.apache.kafka</groupId>
+  <artifactId>kafka-clients</artifactId>
+  <version>2.2.1</version>
+</dependency>
+
+<!-- https://mvnrepository.com/artifact/org.slf4j/slf4j-simple -->
+<dependency>
+  <groupId>org.slf4j</groupId>
+  <artifactId>slf4j-simple</artifactId>
+  <version>1.7.26</version>
+</dependency>
+```
+
+#### Compile the application sources.
+
+```
+mvn compile
+```
+
+#### Change the `App.java` file to `Producer.java` and change the public class.
+vim src/main/java/com/github/chadmcrowell/App.java
+```
+package com.github.chadmcrowell;
+
+public class Producer {
+        public static void main(String[] args) {
+                System.out.println("hello world");
+        }
+}
+```
+mv App.java Producer.java
+#### Compile the application sources again.
+
+```
+mvn compile
+```
+
+#### Test your "hello world" app (from the kafa-app dir).
+
+```
+mvn exec:java -Dexec.mainClass="com.github.chadmcrowell.Producer"
+```
+
+#### Add the producer configs to your `Producer.java` file.
+
+```
+package com.github.chadmcrowell;
+
+import org.apache.kafka.clients.producer.KafkaProducer;
+import org.apache.kafka.clients.producer.ProducerConfig;
+import org.apache.kafka.clients.producer.ProducerRecord;
+import org.apache.kafka.common.serialization.StringSerializer;
+
+import java.util.Properties;
+
+public class Producer {
+        public static void main(String[] args) {
+                String bootstrapServers = "kafka1:9092";
+                // Producer configs
+                Properties properties = new Properties();
+                properties.setProperty(ProducerConfig.BOOTSTRAP_SERVERS_CONFIG, bootstrapServers);
+                properties.setProperty(ProducerConfig.KEY_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+                properties.setProperty(ProducerConfig.VALUE_SERIALIZER_CLASS_CONFIG, StringSerializer.class.getName());
+
+                // create producer
+                KafkaProducer<String, String> producer = new KafkaProducer<String, String>(properties);
+
+                // create producer record
+                ProducerRecord<String, String> record = new ProducerRecord<String, String>("test", "hello world");
+
+                // send data
+                producer.send(record);
+
+                // flush data
+                producer.flush();
+
+                // close producer
+                producer.close();
+
+        }
+}
+```
+
+#### Compile the application sources yet again.
+
+```
+mvn compile
+```
+
+#### Run the console consumer in another terminal session.
+
+```
+./bin/kafka-console-consumer.sh --bootstrap-server kafka1:9092 --topic test --group application4
+```
+
+#### Run the producer application.
+
+```
+mvn exec:java -Dexec.mainClass="com.github.chadmcrowell.Producer"
+```
