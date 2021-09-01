@@ -1,0 +1,30 @@
+EVENT TIME : This is the time the events we are tracking occurred and the record was created—
+the time a measurement was taken, an item at was sold at a shop, a user viewed a
+page on our website, etc.
+LOG APPEND TIME : This is the time the event arrived to the Kafka broker and was stored there
+PROCESSING TIME : This is the time at which a stream-processing application received the event in
+order to perform some calculation. This time can be milliseconds, hours, or days
+after the event occurred
+WHEN TRACKING JUST THE EVENTS IS NOT ENOUGH - MULTIPLE ATTRIBUTE
+(i.e. type, moving average, etc)
+SOLUTION:
+capture metadata like type/hour
+events that require joining
+sum, averages
+store all of this in STATE!
+TWO TYPE OF STATE
+LOCAL - VERY FAST
+EXTERNAL - (i.e. CASSANDRA DB)
+Unlimited size, access from diff apps
+but latency issues
+STREAMS - keep a history of changes
+NO DELETE
+convert table to stream
+turn INSERT, UPDATE, DELETE into stream
+convert streams to table
+INVENTORY EXAMPLE
+Blue pants purchased
+Red pants purchased
+Khaki pants purchased
+pants returned
+GET LATEST STATE

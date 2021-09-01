@@ -1,0 +1,30 @@
+Single Event Processing: app consume event from the stream, modify each event individually \
+and produce event to another stream
+For example: read log message then write error event on high priority stream and \
+the rest to low priority stream. The application doesnt need to maintenance state, \
+because each event can be handle independently so can recovery it easy. A simple consume and \
+producer can be use for it.
+
+Local State Processing: good for aggregating large amount information within a time window
+For example for getting the stock price. The high and the low for each day for particular stock.
+It require maintenance the state because we need to store min/max value each event. Local state is use
+better than share state, because our app operate as a group. Other event are written to the same partition,
+so it can be separated. There many issue for local state design however: memory used : because the state must fit \
+into available memory. Another issue is persistent: because state is stored in memory, if we shutdown the machine \
+we we gonna lose the data. Another issue is rebalancing: Sometime partition reassign to another consumer, the instance \
+state lose that partition must store the last good state. And the instance state received the partition must know how to
+recover the correct state.
+
+Multiphase Processing: this design partially use Local State, but kick over to a new partition for aggregating a subset of
+that data. For example we are getting the top performing stock per day. We calculate daily gain/loss for each stock, and write the result
+to a new topic with a single partition. It make it so the job can be handle by a single small instance, instead of taking a processing
+power a way from bigger system. This should be very familiar if you are used to use map and reduce system.
+
+Extermal Processing: When you have date external to stream (value on db or quick stream information?) and perform the external lookup.
+For example: For every click in the stream, you lookup the user and profile on db, and write an event that include original clip plus
+age and gender and write that to another topic. It is good in theory but may cause latency issue. The stream processing system can handle
+10000-500000 events per second, while the db can handle maybe 10000 events per second. We have another option is caching the database state on
+our application but managing the cache is difficult because we cant assure that is the most up to date information.
+
+Windowed Join: want to join two event streams, joining the entire history is trying to match event one stream with the another stream,
+that have same key and same window. For example:
